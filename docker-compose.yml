@@ -1,0 +1,32 @@
+services:
+    db:
+        image: public.ecr.aws/docker/library/postgres:16.4 # this is called registry and this is from amezon registry
+        volumes:
+            - /database/deploy_django/db:/var/lib/postgresql/data
+        ports:
+            - 12001:5432
+        container_name: hhc-db
+        env_file:
+            - .env
+        environment:
+            POSTGRES_USER: ${DB_NAME}
+            POSTGRES_PASSWORD: ${DB_USER}
+            POSTGRES_DB: ${DB_PASSWORD}
+    app:
+        build: .
+        command: python manage.py runserver 0.0.0.0:12002
+        volumes:
+            - .:/code
+        ports:
+            - 12002:12002
+        container_name: hhc-app
+        env_file:
+            - .env
+        environment:
+            DB_NAME: ${DB_NAME}
+            DB_USER: ${DB_USER}
+            DB_PASSWORD: ${DB_PASSWORD}
+            DB_HOST: ${DB_HOST}
+            DB_PORT: ${DB_PORT}
+        depends_on:
+            - db
